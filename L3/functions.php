@@ -1,5 +1,22 @@
 <?php
 
+
+//HELPER FEUNCTIONS
+//multivariable-empty-checker from http://stackoverflow.com/a/7798842/2848941
+function mempty() {
+    foreach(func_get_args() as $arg){
+		if(empty($arg)){
+			continue;
+		} else {
+			return false;
+		}
+		return true;
+	}
+}
+
+
+//HOMEWORK SPECIFIC
+
 //guestimating age of something
 function moments($seconds)
 {
@@ -27,5 +44,9 @@ function check_wordness ($input, $label){
 	}
 }
 
+//validate for success
+function validate_form (){
+
+}
 
 ?>

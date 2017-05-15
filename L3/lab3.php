@@ -1,7 +1,5 @@
 <?php
 
-var_dump($_POST);
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -21,14 +19,22 @@ $moment                 = moments(time() - $postedTime);
 /********************************************************************/
 
 // define content variables and set to empty values
-$name = $l_name = $gender = $comment = $priority = $received = "";
+$f_name = $l_name = $gender = $comment = $priority = $received = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	foreach ($_POST as $key=>$val){
-		/* $_POST[$key] = */ ${$key} = test_input($val);
-		//considered overwriting the values after cleaning, but risked changing it upon each submission, i.e. & becomes &amp; which becomes &amp;amp; etc due to escaping special characters...
-		var_dump(${$key});
+		if (!empty($val)) {
+			/* $_POST[$key] = */ ${$key} = test_input($val);
+		}
+		//was considered overwriting the values after cleaning, but risked changing it upon each submission, i.e. & becomes &amp; which becomes &amp;amp; etc due to escaping special characters...
 	}
+	/* //had this before, but decided it was too long.
+	  $f_name = test_input($_POST["f_name"]);
+	  $l_name = test_input($_POST["l_name"]);
+	  $priority = test_input($_POST["priority"]);
+	  $comment = test_input($_POST["comment"]);
+	  //I couldn't think of any security concerns in going over all keys to clean them up - even if someone managed to send in a changed form with new fields, assuming my test_input() function doesn't introduce vulnerability none of those values would get to run... right?
+	*/
 }
 /*There probably is a way to itterate through the keys of the $_POST objects and write a fancy for loop that creates variables from them, right? Seems like a lot of repetition here... - Imagine if there was more variables!*/
 
@@ -37,8 +43,10 @@ $f_nameErr = $l_nameErr = $commentErr = $priorityErr = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
 	//echo "GTFO you little hacker!";
-	//realized that also happens when you first access the post.
+	//realized that also happens when you first access the post, since normal reading of the page is a get request...
 } else if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	//which means this point is after first submission.
+	$started = true;
 /* //Reset functionality still in progress - not digging deeper, since probably session management is the best solution.
 	if (isset($_POST["Reset"])){
   	  unset($_POST);
@@ -51,9 +59,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
   } else {
     $f_name = ucwords(strtolower(test_input($_POST["f_name"])));
 	//wanted to check for non-numeric characters, but didn't work...
-
+/*
 	check_wordness($f_name, 'f_name');
-
+*/
   }
 
   if (empty($_POST["l_name"])) {
@@ -77,10 +85,30 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $comment = test_input($_POST["comment"]);
   }
 
-  if (isset($_POST["f_name"], $_POST["l_name"], $_POST["priority"], $_POST["comment"]) && empty($success)) {
+  if (isset($_POST["f_name"], $_POST["l_name"], $_POST["priority"], $_POST["comment"])
+      && (!mempty($_POST["f_name"], $_POST["l_name"], $_POST["priority"], $_POST["comment"]))) {
 	  $success = true;
 	  $received = time();
 	  $received_formatted = date('l F \t\h\e dS, Y', $received);
+/*
+	  $fp = fopen('file.csv', 'w');
+	  fputcsv($fp, $_POST);
+	  fclose($fp);
+*/
+
+
+$list = array (
+    $_POST
+);
+
+$fp = fopen('file.csv', 'a');
+
+foreach ($list as $fields) {
+    fputcsv($fp, $fields);
+}
+
+fclose($fp);
+
   }
 }
 ?>
@@ -108,8 +136,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
+				<?php if (isset($started) && $started===true && (!isset($success) || $success!==true)): ?>
+					<p class="alert alert-danger">The post has not yet been successfully submitted. Click on "New Post" to keep editing.</p>
+				<?php endif; ?>
 				<?php if (isset($success) && $success===true): ?>
-					<p class="panel panel-info">Thank you <?php echo "$f_name $l_name"; ?> for posting! Received <?=$received_formatted?> </p>
+					<p class="alert alert-success">Thank you <?php echo "$f_name $l_name"; ?> for posting! Received <?=$received_formatted?> </p>
 				<?php endif; ?>
                 <button class="btn btn-default" data-toggle="modal" data-target="#newPost"><?php echo ((empty($success)) ? "New Post" : "Edit Last Post"); ?></button>
                 <hr/>
@@ -202,15 +233,15 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
                 <div class="form-group">
                     <label for="comment">Comment</label>
 					<span class="error">* <?php echo $commentErr;?></span>
-                    <textarea id="comment" class="form-control" name="comment" rows="3" ><?php echo $comment ?></textarea>
+                    <textarea id="comment" class="form-control" name="comment" rows="3" placeholder="Your message for the world" ><?php echo $comment ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority</label>
 					<span class="error">* <?php echo $priorityErr;?></span>
                     <select id="priority" class="form-control" name="priority" >
-						<?php if ($priority == "") { ?>
-							<option selected disabled>Choose here</option>
-						<?php } ?>
+						<?php //if (empty($priority)) { ?>
+							<option value="" selected disabled>Choose here</option>
+						<?php //} ?>
                         <option value="1" <?php echo  ($priority == 1) ? "selected" : ""?> >Crucial</option>
                         <option value="2" <?php echo  ($priority == 2) ? "selected" : ""?> >Important</option>
                         <option value="3" <?php echo  ($priority == 3) ? "selected" : ""?> >High</option>

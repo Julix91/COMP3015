@@ -22,99 +22,49 @@ $moment                 = moments(time() - $postedTime);
 
 /********************************************************************/
 
-// define content variables and set to empty values
-$f_name = $l_name = $gender = $comment = $priority = $received = "";
+// define variables and set to empty values
+$first_name = $last_name = $gender = $comment = $priority = $received = "";
+$first_nameErr = $last_nameErr = $commentErr = $priorityErr = $success = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	foreach ($_POST as $key=>$val){
-		if (!empty($val)) {
-			/* $_POST[$key] = */ ${$key} = test_input($val);
-		}
-		//was considered overwriting the values after cleaning, but risked changing it upon each submission, i.e. & becomes &amp; which becomes &amp;amp; etc due to escaping special characters...
-	}
-	/* //had this before, but decided it was too long.
-	  $f_name = test_input($_POST["f_name"]);
-	  $l_name = test_input($_POST["l_name"]);
-	  $priority = test_input($_POST["priority"]);
-	  $comment = test_input($_POST["comment"]);
-	  //I couldn't think of any security concerns in going over all keys to clean them up - even if someone managed to send in a changed form with new fields, assuming my test_input() function doesn't introduce vulnerability none of those values would get to run... right?
-	*/
-}
-/*There probably is a way to itterate through the keys of the $_POST objects and write a fancy for loop that creates variables from them, right? Seems like a lot of repetition here... - Imagine if there was more variables!*/
+var_dump($success);
+//receive_form();
 
-//same for error messages, though I guess since all are required there could just be one message, but slightly better UX
-$f_nameErr = $l_nameErr = $commentErr = $priorityErr = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-	//echo "GTFO you little hacker!";
-	//realized that also happens when you first access the post, since normal reading of the page is a get request...
-} else if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	//which means this point is after first submission.
+//On submit mark form as started, clean up inputs and namify names
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	$started = true;
-/* //Reset functionality still in progress - not digging deeper, since probably session management is the best solution.
-	if (isset($_POST["Reset"])){
-  	  unset($_POST);
-  	  echo "Successfully reset!";
-	  echo '<script> $("#new-post-form").find("input, textarea").val("") </script>';
-    }
-*/
-  if (empty($_POST["f_name"])) {
-    $f_nameErr = "Your first name is required";
-  } else {
-    $f_name = ucwords(strtolower(test_input($_POST["f_name"])));
-	//wanted to check for non-numeric characters, but didn't work...
-/*
-	check_wordness($f_name, 'f_name');
-*/
-  }
+	var_dump($_POST );
+	foreach ($_POST as $key=>$val){
+		if(empty(trim($val))){
 
-  if (empty($_POST["l_name"])) {
-    $l_nameErr = "Your last name is required";
-  } else {
-    $l_name = ucwords(strtolower(test_input($_POST["l_name"])));
-	/*
-	check_wordness($l_name, 'l_name');
-	*/
-  }
+			if($key === "priority"){
+				${$key . "Err"} = "You've gotta tell me how <em>important</em> it is to you!";
+			} else if ($key === "comment"){
+				${$key . "Err"} = "Seriously, if you've got nothing to say, why bother at all?";
+			} else {
+				${$key . "Err"} = "Your <em>" . namify($key) . "</em> is required!";
+			}
+			echo $key . " " . ${$key} . "<br>";
+		} else {
+			/*$_POST[$key] = */${$key} = clean_input($val);
+			if($key === "first_name" || $key === "last_name"){
+				${$key} = namify(${$key});
+			}
+		}
+	}
+	//check for successfulness of submission
+if (isset($_POST["first_name"], $_POST["last_name"], $_POST["priority"], $_POST["comment"])
+//&& (not_mempty($_POST["first_name"], $_POST["last_name"], $_POST["priority"], $_POST["comment"]))
+//still working on more elegant multi-not-empty
+&& ( (!empty($_POST["first_name"])) && (!empty($_POST["last_name"])) && (!empty($_POST["priority"])) && (!empty($_POST["comment"])) )
+) {
+		$success = true;
+		$_POST["received"] = time();
+		$received_formatted = date('l F \t\h\e dS, Y', $_POST["received"]);
 
-  if (empty($_POST["priority"])) {
-    $priorityErr = "You've gotta tell me how important it is";
-  } else {
-    $priority = test_input($_POST["priority"]);
-  }
-
-  if (empty($_POST["comment"])) {
-    $commentErr = "Seriously, if you've got nothing to say, why bother at all?";
-  } else {
-    $comment = test_input($_POST["comment"]);
-  }
-
-  if (isset($_POST["f_name"], $_POST["l_name"], $_POST["priority"], $_POST["comment"])
-      && (!mempty($_POST["f_name"], $_POST["l_name"], $_POST["priority"], $_POST["comment"]))) {
-	  $success = true;
-	  $received = time();
-	  $received_formatted = date('l F \t\h\e dS, Y', $received);
-/*
-	  $fp = fopen('file.csv', 'w');
-	  fputcsv($fp, $_POST);
-	  fclose($fp);
-*/
-
-
-$list = array (
-    $_POST
-);
-
-$fp = fopen('file.csv', 'a');
-
-foreach ($list as $fields) {
-    fputcsv($fp, $fields);
+		save_as_CSV($_POST, 'file.csv');
+	}
 }
 
-fclose($fp);
-
-  }
-}
 ?>
 
 
@@ -125,6 +75,7 @@ fclose($fp);
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="css/style.css" rel="stylesheet">
+	<style>.alert{padding: 5px; margin-bottom: 2px;}</style>
 </head>
 <body>
 
@@ -144,7 +95,7 @@ fclose($fp);
 					<p class="alert alert-danger">The post has not yet been successfully submitted. Click on "New Post" to keep editing.</p>
 				<?php endif; ?>
 				<?php if (isset($success) && $success===true): ?>
-					<p class="alert alert-success">Thank you <?php echo "$f_name $l_name"; ?> for posting! Received <?=$received_formatted?> </p>
+					<p class="alert alert-success">Thank you <?php echo "$first_name $last_name"; ?> for posting! Received <?=$received_formatted?> </p>
 				<?php endif; ?>
                 <button class="btn btn-default" data-toggle="modal" data-target="#newPost"><?php echo ((empty($success)) ? "New Post" : "Edit Last Post"); ?></button>
                 <hr/>
@@ -176,7 +127,7 @@ fclose($fp);
 						</div>
 						<div class="panel-footer">
 							<p> By
-								<?php echo "$f_name $l_name"; ?>
+								<?php echo "$first_name $last_name"; ?>
 							</p>
 						</div>
 					</div>
@@ -225,27 +176,25 @@ fclose($fp);
 	            <form role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" name="make-new-post" id="new-post-form">
 				<div class="panel panel-info text-center">FYI: All inputs are required!</div>
                 <div class="form-group">
-					<label for="f_name">First Name</label>
-                    <input id="f_name" class="form-control" name="f_name" placeholder="First Name" value="<?php echo (isset($f_name) ? $f_name : "") ?>" >
-						<span class="error"><?php echo $f_nameErr;?></span>
+					<label for="first_name">First Name</label>
+					<?php echo ( (!empty($first_nameErr)) ? '<div class="alert alert-warning">' . $first_nameErr . '</div>' : "") ;?>
+                    <input id="first_name" class="form-control" name="first_name" placeholder="First Name" value="<?php echo (isset($first_name) ? $first_name : "") ?>" >
                 </div>
                 <div class="form-group">
-					<label for="l_name">Last Name</label>
-                    <input id="l_name" class="form-control" name="l_name" placeholder="Last Name" value="<?php echo $l_name ?>" >
-					<span class="error"><?php echo $l_nameErr;?></span>
+					<label for="last_name">Last Name</label>
+					<?php echo ((!empty($last_nameErr)) ? '<div class="alert alert-warning">' . $last_nameErr . '</div>' : "") ;?>
+                    <input id="last_name" class="form-control" name="last_name" placeholder="Last Name" value="<?php echo $last_name ?>" >
                 </div>
                 <div class="form-group">
                     <label for="comment">Comment</label>
-					<span class="error">* <?php echo $commentErr;?></span>
+					<?php echo ((!empty($commentErr)) ? '<div class="alert alert-warning">' . $commentErr . '</div>' : "") ;?>
                     <textarea id="comment" class="form-control" name="comment" rows="3" placeholder="Your message for the world" ><?php echo $comment ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="priority">Priority</label>
-					<span class="error">* <?php echo $priorityErr;?></span>
+					<?php echo ((!empty($priorityErr)) ? '<div class="alert alert-warning">' . $priorityErr . '</div>' : "") ;?>
                     <select id="priority" class="form-control" name="priority" >
-						<?php //if (empty($priority)) { ?>
-							<option value="" selected disabled>Choose here</option>
-						<?php //} ?>
+						<option value="" selected style="color: gray">Choose here</option>
                         <option value="1" <?php echo  ($priority == 1) ? "selected" : ""?> >Crucial</option>
                         <option value="2" <?php echo  ($priority == 2) ? "selected" : ""?> >Important</option>
                         <option value="3" <?php echo  ($priority == 3) ? "selected" : ""?> >High</option>

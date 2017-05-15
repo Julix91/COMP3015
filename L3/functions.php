@@ -3,15 +3,29 @@
 
 //HELPER FEUNCTIONS
 //multivariable-empty-checker from http://stackoverflow.com/a/7798842/2848941
-function mempty() {
+function not_mempty() {
+	$sentinel = false;
     foreach(func_get_args() as $arg){
-		if(empty($arg)){
+		if(!empty(trim($arg))){
 			continue;
 		} else {
-			return false;
+			$sentinel = false;
 		}
-		return true;
+		$sentinel = true;
 	}
+	return $sentinel;
+}
+
+function save_as_CSV($what = NULL, $where = NULL){
+	if (!isset($where)) {
+		$where = 'file.csv';
+	}
+	if (!isset($what)){
+		$what = $_POST;
+	}
+	$file = fopen($where, 'a');
+	fputcsv($file, $what);
+	fclose($file);
 }
 
 
@@ -44,7 +58,39 @@ function get_post_data(){
 	fclose($myfile);
 	return $results;
 }
-/*************************************/
+
+/********************************************************************/
+
+/********* FORM DATA ********/
+
+//clean inputs - see https://www.w3schools.com/php/showphp.asp?filename=demo_form_validation_escapechar
+function clean_input($data) {
+  $data = trim(preg_replace('/\s\s+/', ' ', str_replace("\n", " ", $data)));//removes unnecessary whitespace
+  $data = stripslashes($data); //avoids escaping the intended context
+  $data = htmlspecialchars($data); //also to help vs injection
+  return $data;
+}
+
+//e.g. turning gARy_toNG to Gary Tong
+function namify($str){
+	$str = str_replace('_', ' ', $str);
+	return ucwords(strtolower($str));
+}
+
+function format_date($time){
+	date('l F \t\h\e dS, Y', $time);
+}
+
+function receive_form() {
+	global $first_name, $last_name, $gender, $comment, $priority, $received, $first_nameErr, $last_nameErr, $commentErr, $priorityErr, $success, $started;
+
+
+}
+
+
+
+//Import CSV data into two-dimensional array with semantic key
+//inspired by http://stackoverflow.com/a/8353265/2848941
 
 
 //guestimating age of something
@@ -55,28 +101,6 @@ function moments($seconds)
         return "within the month";
     }
     return "a while ago";
-}
-
-//Keeping my inputs clean
-function test_input($data) {
-  $data = trim(preg_replace('/\s\s+/', ' ', str_replace("\n", " ", $data)));//removes unnecessary whitespace
-  $data = stripslashes($data); //avoids escaping
-  $data = htmlspecialchars($data); //vs injection
-  return $data;
-}
-
-// check if name only contains letters and whitespace
-//doesn't yet work
-
-function check_wordness ($input, $label){
-	if (!preg_match("/^[a-zA-Z ]*$/",$input)) {
-		return ${$label . "Err"} += " Only letters and white space allowed";
-	}
-}
-
-//validate for success
-function validate_form (){
-
 }
 
 ?>

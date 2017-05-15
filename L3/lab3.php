@@ -2,6 +2,7 @@
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+ini_set('auto_detect_line_endings',TRUE);
 
 require('functions.php');
 
@@ -9,6 +10,9 @@ require('functions.php');
 $postedTime = 1481808630;
 $author = "   gary TonG  ";
 $content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tincidunt est vitae ultrices accumsan. Aliquam ornare lacus adipiscing, posuere lectus et, fringilla augue.";
+
+//read CSV string to array of posts (and decode)
+$posts = get_post_data();
 
 // modify these variables
 $formattedAuthor        =  trim(ucwords(strtolower($author)));

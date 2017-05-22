@@ -7,7 +7,7 @@
         </div>
 		<div class="modal-body">
 
-				<form role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" name="make-new-post" id="new-post-form">
+				<form role="form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" name="make-new-post" id="new-post-form" enctype="multipart/form-data">
 				<div class="panel panel-info text-center">FYI: All inputs are required!</div>
 				<div class="form-group">
 					<label for="first_name">First Name</label>
@@ -42,16 +42,20 @@
 				</div>
 				<div class="form-group">
 					<label>Image</label>
-					<input type="file" name="img_src" value="<?php echo $_POST['img_src']; ?>" />
+					<?php //on second thought, not sure why I thought I'd need this
+					/*<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $settings['max_file_size']; ?>" /><!-- max 1 mb files -->*/ ?>
+					<?php echo ((!empty($_FILE['userfile']['upload_message'])) ? '<div class="alert alert-warning">' . $_FILE['userfile']['upload_message'] . '</div>' : "") ;?>
+					<input type="file" name="userfile" />
+					<input type="hidden" name="img_src" value="<?php echo $_POST['img_src']; ?>" />
 				</div>
-				<input type="checkbox" name="started" value="started" checked hidden>
+				<input type="hidden" name="started" value="started" />
 			</form>
 
         </div>
         <div class="modal-footer">
 			<?php /* reset didn't work <input form="new-post-form" type="submit" value="Reset" class="btn btn-danger" name="Reset"  onclick="document.getElementById("new-post-form").reset(); " /> */?>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <input form="new-post-form" type="submit" value="Submit Post" class="btn btn-primary" />
+            <input form="new-post-form" type="submit" value="Submit Post" class="btn btn-primary" name="submit" />
         </div>
     </div><!-- /.modal-content -->
 </div><!-- /.modal-dialog -->

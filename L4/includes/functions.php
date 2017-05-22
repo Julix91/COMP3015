@@ -1,7 +1,10 @@
 <?php
+/*Settings*/
+//currently still dispersed throughout document, will move here later.
+$settings['max_file_size'] = pow(10, 6);
 
 
-/********************************************************************/
+/********************************POST**********************************/
 	//This section handles reading and displaying saved posts//
 
 
@@ -169,7 +172,7 @@ function display_posts($posts)
 	return $html_posts;
 }
 
-/********************************************************************/
+/*****************************FORM************************************/
 	//This section handles form submissions and saving them	//
 
 /*Helper functions*/
@@ -209,6 +212,62 @@ function not_mempty() { //multiple + trimmed + empty
 		return true;
 	}
 }
+
+function handle_uploads($success)
+{
+	/*Handle uploads*/
+	if(isset($_FILES) && count($_FILES)>0 ){
+		//inspired by https://www.w3schools.com/php/php_arrays.asp
+		var_dump($_FILES);
+		$orgname = $_FILES['userfile']['name'];//original
+		$upload_dir = './uploads/';
+		$upload_file = $upload_dir . basename($orgname);
+		$upload_status = 1;
+		$upload_file_type = pathinfo($upload_file,PATHINFO_EXTENSION);
+		// Check if image file is an actual image or not
+		if(isset($_POST["submit"])) {
+			$check = getimagesize($_FILES["userfile"]["tmp_name"]);
+			if($check !== false) {
+				$_FILE['userfile']['upload_message'] =  "File is an image - " . $check["mime"] . ".";
+				$upload_status = 1;
+			} else {
+				$_FILE['userfile']['upload_message'] =  "File is not an image.";
+				$upload_status = 0;
+			}
+		}
+		// Check if file already exists
+		if (file_exists($upload_file)) {
+			$_FILE['userfile']['upload_message'] =  "Sorry, file already exists.";
+			$upload_status = 0;
+		}
+		// Check file size
+		if ($_FILES["userfile"]["size"] > $settings['max_file_size']) {
+			$_FILE['userfile']['upload_message'] =  "Sorry, your file is too large.";
+			$upload_status = 0;
+		}
+		// Allow certain file formats
+		if($upload_file_type != "jpg" && $upload_file_type != "png" && $upload_file_type != "jpeg"
+		&& $upload_file_type != "gif" ) {
+			$_FILE['userfile']['upload_message'] =  "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+			$upload_status = 0;
+		}
+		// Check if $upload_status is set to 0 by an error
+		if ($upload_status == 0) {
+			$_FILE['userfile']['upload_message'] =  "Sorry, your file was not uploaded.";
+		// if everything is ok, try to upload file
+	} else if($success===true) {
+			if (move_uploaded_file($_FILES["userfile"]["tmp_name"], $upload_file)) {
+				$_FILE['userfile']['upload_message'] =  "The file ". basename( $_FILES["userfile"]["name"]). " has been uploaded.";
+			} else {
+				$_FILE['userfile']['upload_message'] =  "Sorry, there was an error uploading your file.";
+			}
+		}
+	}
+}
+
+
+
+//Setting a bunch of variables to avoid undefined notices
 $required_fields = ["started", "first_name", "last_name", "title", "img_src", "priority", "comment"];
 foreach ($required_fields as $value) {
 	if(!(isset($_POST[$value]))){
@@ -218,6 +277,8 @@ foreach ($required_fields as $value) {
 
 //On submit mark form as started, clean up inputs and namify names
 if ($_SERVER["REQUEST_METHOD"] === "POST" && count($_POST) > 0 && $_POST['started'] === "started") {
+
+
 
 	var_dump($_POST);
 	foreach ($_POST as $key=>$val){
@@ -234,7 +295,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && count($_POST) > 0 && $_POST['starte
 			$_POST[$key] = clean_input($val);
 		}
 	}
-
 
 
 	//check for successfulness of submission
@@ -261,12 +321,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && count($_POST) > 0 && $_POST['starte
 	};
 
 	$success = $test_success($required_fields);
+	handle_uploads($success);
 	if($success){
 		echo "<br>feeling successful<br>";
 		$_POST["received"] = time();
 		$received_formatted = date('l F \t\h\e dS, Y', $_POST["received"]);
 		save_as_CSV($_POST, 'posts.txt');
 	}
+
+
+
+
+
 }
 
 ?>

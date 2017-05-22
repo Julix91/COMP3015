@@ -26,6 +26,11 @@ $formattedCurrentTime = format_date(time());
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="css/style.css" rel="stylesheet">
+	<style>
+	.alert {
+		padding: 0;
+		margin-bottom: 0;
+	}</style>
 </head>
 <body>
 
@@ -54,7 +59,7 @@ $formattedCurrentTime = format_date(time());
 
     </div>
 </div>
-<?php include "./templates/newpost.php" ?>
+<?php include "./templates/form.php" ?>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 </body>

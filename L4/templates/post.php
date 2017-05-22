@@ -16,9 +16,13 @@
 				<p>
 					<?php echo $post['comment']; ?>
 				</p>
+				<?php if(!($post['img_src']==="unknown")
+					&& !empty($post['img_src'])
+					&& file_exists($post['img_src']) ){ ?>
 				<div class="img-box">
 					<img class="img-thumbnail img-responsive" src="./uploads/<?php echo $post['img_src'] ?>"/>
 				</div>
+				<?php }?>
 			</div>
 			<div class="panel-footer">
 				<p> By

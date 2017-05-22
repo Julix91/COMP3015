@@ -2,55 +2,17 @@
 
 require ("includes/functions.php");
 
-
-
-
-
-function add_posts($posts)
-{
-	var_dump($posts);
-	$lim = count($posts);
-	for ($i = 0; $i < $lim; $i++){
-		$post = $posts[$i];
-	//	$posts[$i]['when'] = moments($post['received']);
-		$posts[$i]['who'] = namify($post['first_name']) . " " . namify($post['last_name']);
-	}
-}
-
 $posts = get_post_data("posts.txt");
-$sorted_posts = sort_posts_by('priority', $posts);
-$html_posts = add_posts($sorted_posts);
-
-var_dump($posts[0]['received']);
-// modify these variables
-/*
-$formattedAuthor        = trim(ucwords(strtolower($author)));
-$formattedCurrentTime   = date('l F \t\h\e dS, Y', time());
-$formattedPostedTime    = date('l F \t\h\e dS, Y', $postedTime);
-$moment                 = moments(time() - $postedTime);
-*/
-
-
-
-
-/*H_Julian,Hartley-Sloman,Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tincidunt est vitae ultrices accumsan. Aliquam ornare lacus adipiscing, posuere lectus et, fringilla augue.,2,nyc.jpg,1481808630*/
-
-function save_as_CSV($what = NULL, $where = NULL){
-	if (!isset($where)) {
-		$where = 'file.csv';
+if(isset($posts['error'])){
+	$html_posts = "";
+	foreach($posts['error'] as $code){
+		$html_posts .= $code . "<br>";
 	}
-	if (!isset($what)){
-		$what = $_POST;
-	}
-	$file = fopen($where, 'a');
-	fputcsv($file, $what);
-	fclose($file);
+} else {
+	$sorted_posts = sort_posts_by('priority', $posts);
+	$html_posts = display_posts($sorted_posts);
 }
-$array_julix= array('H_Julian,Hartley-Sloman','Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tincidunt est vitae ultrices accumsan. Aliquam ornare lacus adipiscing, posuere lectus et, fringilla augue.','2','nyc.jpg','1481808630');
-save_as_CSV($array_julix, 'file.csv');
-
-
-
+$formattedCurrentTime = format_date(time());
 
 ?>
 
@@ -81,6 +43,8 @@ save_as_CSV($array_julix, 'file.csv');
                 <hr/>
             </div>
         </div>
+
+		<?php echo $html_posts;?>
 
     </div>
 </div>

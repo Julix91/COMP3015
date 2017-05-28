@@ -2,21 +2,6 @@
 
 require ("includes/functions.php");
 
-$posts = get_post_data("posts.txt");
-if(isset($posts['error'])){
-	$html_posts = "";
-	foreach($posts['error'] as $code){
-		$html_posts .=
-		"<div class=\"alert alert-info text-center row col-md-6 col-md-offset-3\">
-			$code
-		</div>";
-	}
-} else {
-	$sorted_posts = sort_posts_by('priority', $posts);
-	$html_posts = display_posts($sorted_posts);
-}
-$formattedCurrentTime = format_date(time());
-
 ?>
 
 <!DOCTYPE html>
@@ -50,7 +35,7 @@ $formattedCurrentTime = format_date(time());
 				<?php if (isset($_POST['started']) && $_POST['started']==="started"){
 					include "./templates/message.php";
 				}?>
-                <button class="btn btn-default" data-toggle="modal" data-target="#newPost"><?php echo ($_POST['started'] !== "started" && $_POST['started']  !== "completed" ? "New Post" : "Edit Last Post"); ?></button>
+                <button class="btn btn-default" data-toggle="modal" data-target="#newPost"><?php echo ( ($_POST['started'] == "started" && !($success) ) ? "Edit Last Post" : "New Post"); ?></button>
 				<hr/>
 			</div>
 		</div>
@@ -64,3 +49,8 @@ $formattedCurrentTime = format_date(time());
 <script src="js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php/* //this doens't do it yet, but I want to unset upon success without breaking everything
+if($success){
+	unset($_FILES); unset($_POST);
+}*/
+?>

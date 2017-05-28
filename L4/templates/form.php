@@ -21,7 +21,7 @@
 				</div>
 				<div class="form-group">
 					<label>Title</label>
-					<input class="form-control" placeholder="" name="title">
+					<input class="form-control" placeholder="" name="title" value="<?php echo $_POST['title'] ?>" >
 				</div>
 				<div class="form-group">
 					<label for="comment">Comment</label>
@@ -33,20 +33,23 @@
 					<?php echo ((!empty($priorityErr)) ? '<div class="alert alert-warning">' . $priorityErr . '</div>' : "") ;?>
 					<select id="priority" class="form-control" name="priority" >
 						<option value="" selected style="color: gray">Choose here</option>
-						<option value="1" <?php echo  ($_POST['priority'] == 1) ? "selected" : ""?> >Crucial</option>
-						<option value="2" <?php echo  ($_POST['priority'] == 2) ? "selected" : ""?> >Important</option>
+						<option value="5" <?php echo  ($_POST['priority'] == 5) ? "selected" : ""?> >Crucial</option>
+						<option value="4" <?php echo  ($_POST['priority'] == 4) ? "selected" : ""?> >Important</option>
 						<option value="3" <?php echo  ($_POST['priority'] == 3) ? "selected" : ""?> >High</option>
-						<option value="4" <?php echo  ($_POST['priority'] == 4) ? "selected" : ""?> >Normal</option>
-						<option value="5" <?php echo  ($_POST['priority'] == 5) ? "selected" : ""?> >Un-high</option>
+						<option value="2" <?php echo  ($_POST['priority'] == 2) ? "selected" : ""?> >Normal</option>
+						<option value="1" <?php echo  ($_POST['priority'] == 1) ? "selected" : ""?> >Un-high</option>
 					</select>
 				</div>
 				<div class="form-group">
+					<?php if (!trimpty($_POST['img_src'])){ ?>
+						<label>Accepted Image</label>
+						<input type="text" value="<?php echo $_POST['img_src']; ?>" />
+						<p>If you want to change the image, re-open the form in a new tab.</p>
+					<?php } ?>
 					<label>Image</label>
-					<?php //on second thought, not sure why I thought I'd need this
-					/*<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $settings['max_file_size']; ?>" /><!-- max 1 mb files -->*/ ?>
-					<?php echo ((!empty($_FILE['userfile']['upload_message'])) ? '<div class="alert alert-warning">' . $_FILE['userfile']['upload_message'] . '</div>' : "") ;?>
+					<?php /*<input type="hidden" name="MAX_FILE_SIZE" value="<?php echo $settings['max_file_size']; ?>" /><!-- max 1 mb files -->*/ //on second thought, not sure why I thought I'd need this... keeping here to remind me to look up later ?>
+					<?php echo ((!empty($_FILES['userfile']['upload_message'])) ? '<div class="alert alert-warning">' . $_FILES['userfile']['upload_message'] . '</div>' : "") ;?>
 					<input type="file" name="userfile" />
-					<input type="hidden" name="img_src" value="<?php echo $_POST['img_src']; ?>" />
 				</div>
 				<input type="hidden" name="started" value="started" />
 			</form>

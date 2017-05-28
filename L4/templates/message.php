@@ -1,7 +1,7 @@
 <?php if($success===true){?>
 <p class="alert alert-success alert-dismissable text-center">
 	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-	Thank you <?php echo $_POST['first_name'] . " " . $_POST['last_name']; ?> for posting! Received <?=format_date($_POST['received'])?> </p>
+	Thank you <?php echo $_POST['who']; ?> for posting! Received <?=$_POST['posted']?> </p>
 <?php } else {?>
 <p class="alert alert-warning alert-dismissable text-center">
 	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>

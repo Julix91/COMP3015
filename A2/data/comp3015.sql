@@ -1,6 +1,6 @@
 -- MySQL dump 10.16  Distrib 10.1.21-MariaDB, for Linux (x86_64)
 --
--- Host: localhost    Database: localhost
+-- Host: localhost	Database: localhost
 -- ------------------------------------------------------
 -- Server version	10.1.21-MariaDB
 
@@ -20,7 +20,7 @@
 --
 
 DROP TABLE IF EXISTS `logins`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET @saved_cs_client	 = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `logins` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -47,7 +47,7 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `posts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET @saved_cs_client	 = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `posts` (
   `id` int(10) NOT NULL AUTO_INCREMENT,

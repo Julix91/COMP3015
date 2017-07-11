@@ -2,23 +2,23 @@ drop table posts;
 drop table logins;
 
 create table posts(
-    id int(10) auto_increment primary key,
-    firstname varchar(255),
-    lastname varchar(255),
-    title varchar(255),
-    comment text,
-    priority int(1),
-    filename varchar(255),
-    time varchar(255)
+	id int(10) auto_increment primary key,
+	firstname varchar(255),
+	lastname varchar(255),
+	title varchar(255),
+	comment text,
+	priority int(1),
+	filename varchar(255),
+	time varchar(255)
 );
 
 create table logins(
-    id int(10) auto_increment primary key,
-    phoneNumber varchar(255),
-    password varchar(255),
-    firstname varchar(255),
-    lastname varchar(255),
-    dob varchar(255)
+	id int(10) auto_increment primary key,
+	phoneNumber varchar(255),
+	password varchar(255),
+	firstname varchar(255),
+	lastname varchar(255),
+	dob varchar(255)
 );
 
 insert into posts(firstname, lastname, title, comment, priority, filename, time)

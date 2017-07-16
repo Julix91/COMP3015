@@ -1,8 +1,18 @@
 <?php
-
+session_start();
+//If not logged in straight to login page
 require ("includes/functions.php");
+if(empty($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true){
+	redirect('login.php', 401);
+	echo "test";
+} else {
 
 $message = '';
+if(!empty($_SESSION['loginMessage'])){
+	$message = $_SESSION['loginMessage'];
+	unset($_SESSION['loginMessage']);
+}
+
 $posts = getPosts();
 
 if(count($_POST) > 0)
@@ -62,6 +72,9 @@ if(count($_POST) > 0)
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <button class="btn btn-default" data-toggle="modal" data-target="#newPost">New Post</button>
+				<form class="logout" action="logout.php" method="post" style="display: inline">
+					<button type="submit" name="logout" class="btn btn-warning" style="float: right;">Logout</button>
+				</form>
                 <hr/>
             </div>
         </div>
@@ -170,3 +183,4 @@ if(count($_POST) > 0)
 <script src="js/bootstrap.min.js"></script>
 </body>
 </html>
+<?php } //closing else logged in ?>

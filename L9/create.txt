@@ -1,0 +1,11 @@
+START TRANSACTION;
+CREATE DATABASE lesson09;
+USE `lesson09`;
+CREATE TABLE books(
+    id int NOT NULL AUTO_INCREMENT,
+    title varchar(40) NOT NULL,
+    author varchar(40) NOT NULL,
+    published_year YEAR(4) NOT NULL,
+    PRIMARY KEY(id)
+);
+COMMIT;

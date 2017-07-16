@@ -1,0 +1,5 @@
+INSERT INTO books (title, author, published_year) VALUES
+    ('Book 1', 'John', '2005'),
+    ('Book 2', 'Jane', '2010'),
+    ('Book 3', 'Joe', '2012')
+;

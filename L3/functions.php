@@ -45,7 +45,7 @@ function get_post_data(){
 		$parsedLine = str_getcsv( $line, ',' );
 		$result = array();
 		foreach ( $formatting as $index => $value ) {
-		  if(isset($parsedLine[$index])) {
+		  if(isset($parsedLine[$index]) && !empty(trim($parsedLine[$index]))) {
 			 $result[$formatting[$index]] = trim(rawurldecode($parsedLine[$index]));
 			 //decode so that it looks normal - was encoded to avoid having to escape characters for CSV.
 		  } else {
@@ -80,14 +80,13 @@ function namify($str){
 function format_date($time){
 	date('l F \t\h\e dS, Y', $time);
 }
-
+/*
 function receive_form() {
 	global $first_name, $last_name, $gender, $comment, $priority, $received, $first_nameErr, $last_nameErr, $commentErr, $priorityErr, $success, $started;
 
-
+	//had the form stuff here, but it didn't work anymore, even with the globals, not sure why.
 }
-
-
+//*/
 
 //Import CSV data into two-dimensional array with semantic key
 //inspired by http://stackoverflow.com/a/8353265/2848941

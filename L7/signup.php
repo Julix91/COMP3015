@@ -1,73 +1,41 @@
 <?php
-
+session_start();
 require ("includes/functions.php");
 
-$message        = '';
-$firstName      = '';
-$lastName       = '';
-$phoneNumber    = '';
-$dob            = '';
+/*Settings*/
+$storageFile="logindata.csv";
+$requiredFields=['firstName','lastName','password','phoneNumber','dob'];
 
-if(isset($_COOKIE['firstName']))
-{
-    $firstName = $_COOKIE['firstName'];
+/*Variable declarations*/
+foreach ($requiredFields as $required){
+	${$required} = "";
 }
+$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-if(isset($_COOKIE['lastName']))
-{
-    $lastName = $_COOKIE['lastName'];
-}
+	//set variables even if invalid
+	foreach ($requiredFields as $required){
+		if(isset($_POST[$required]) && !empty(trim($_POST[$required]))){
+			${$required} = trim($_POST[$required]);
+		}
+	}
 
-if(isset($_COOKIE['phoneNumber']))
-{
-    $phoneNumber = $_COOKIE['phoneNumber'];
-}
-
-if(isset($_COOKIE['dob']))
-{
-    $dob = $_COOKIE['dob'];
-}
-
-if(count($_POST) > 0)
-{
-    $check = checkSignUp($_POST);
-
-    if($check === true)
-    {
-        $message = '<div class="alert alert-success text-center">
-                        Thank you for signing up!
-                    </div>';
-    }
-    else
-    {
-        $message = '<div class="alert alert-danger text-center">
-                        '.$check.' 
-                    </div>';
-    }
-
-    if(isset($_POST['firstName']))
-    {
-        setcookie('firstName', $_POST['firstName'], time() + 60 * 60);
-        $firstName = $_POST['firstName'];
-    }
-
-    if(isset($_POST['lastName']))
-    {
-        setcookie('lastName', $_POST['lastName'], time() + 60 * 60);
-        $lastName = $_POST['lastName'];
-    }
-
-    if(isset($_POST['phoneNumber']))
-    {
-        setcookie('phoneNumber', $_POST['phoneNumber'], time() + 60 * 60);
-        $phoneNumber = $_POST['phoneNumber'];
-    }
-
-    if(isset($_POST['dob']))
-    {
-        setcookie('dob', $_POST['dob'], time() + 60 * 60);
-        $dob = $_POST['dob'];
-    }
+	if(!checkPresenceOfInput($_POST, $requiredFields)){
+		$message = wrapAlert("All inputs are required!");
+	} elseif(!validateInput($_POST, $requiredFields)) {
+		$message = wrapAlert("All inputs have to be valid!");
+	} else {
+		//inputs present and valid, so save'em
+		$data = array();
+		$_POST['password'] = password_hash($_POST['password'], PASSWORD_BCRYPT);
+		foreach ($requiredFields as $required) {
+			$data[$required] = trim($_POST[$required]);
+		}
+		saveAsCSV($data,$storageFile);
+		$_SESSION['loggedIn']=true;
+		$_SESSION['loginMessage'] = wrapAlert('Thank you for joining ' . $_POST['firstName'] . ' ' . $_POST['lastName'] . '!', 'success');
+		redirect(glob('lab[0-9].php')[0]);
+	}
 }
 ?>
 

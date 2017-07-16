@@ -11,9 +11,6 @@ $postedTime = 1481808630;
 $author = "   gary TonG  ";
 $content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum tincidunt est vitae ultrices accumsan. Aliquam ornare lacus adipiscing, posuere lectus et, fringilla augue.";
 
-//read CSV string to array of posts (and decode)
-$posts = get_post_data();
-
 // modify these variables
 $formattedAuthor        =  trim(ucwords(strtolower($author)));
 $formattedCurrentTime   = date('l F \t\h\e dS, Y', time());
@@ -26,13 +23,11 @@ $moment                 = moments(time() - $postedTime);
 $first_name = $last_name = $gender = $comment = $priority = $received = "";
 $first_nameErr = $last_nameErr = $commentErr = $priorityErr = $success = "";
 
-var_dump($success);
 //receive_form();
 
 //On submit mark form as started, clean up inputs and namify names
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 	$started = true;
-	var_dump($_POST );
 	foreach ($_POST as $key=>$val){
 		if(empty(trim($val))){
 
@@ -134,33 +129,44 @@ if (isset($_POST["first_name"], $_POST["last_name"], $_POST["priority"], $_POST[
 				</div>
 			</div>
 		<?php endif; ?>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <span>
-                            First Post!
-                        </span>
-                        <span class="pull-right text-muted">
-                            <?php echo $moment; ?>
-                        </span>
-                    </div>
-                    <div class="panel-body">
-                        <p class="text-muted">Posted on
-                            <?php echo $formattedPostedTime; ?>
-                        </p>
-                        <p>
-                            <?php echo $content; ?>
-                        </p>
-                    </div>
-                    <div class="panel-footer">
-                        <p> By
-                            <?php echo $formattedAuthor; ?>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+		<?php
+		//read CSV string to array of posts (and decode)
+		$posts = get_post_data();
+		var_dump($posts);
+		function write_post($post){
+
+		}
+		foreach ($posts as $post) { ?>
+			<?php /*template for single posts*/ ?>
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<div class="panel panel-info">
+						<div class="panel-heading">
+							<span>
+								First Post!
+							</span>
+							<span class="pull-right text-muted">
+								<?php echo moments($post["received"]); ?>
+							</span>
+						</div>
+						<div class="panel-body">
+							<p class="text-muted">Posted on
+								<?php echo format_date($post["received"]); ?>
+							</p>
+							<p>
+								<?php echo $post["comment"]; ?>
+							</p>
+						</div>
+						<div class="panel-footer">
+							<p> By
+								<?php echo $post["first_name"] . $post["last_name"]; ?>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+<?php		}
+		 ?>
     </div>
 </div>
 

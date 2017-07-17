@@ -1,74 +1,48 @@
 <?php
-
 require ("includes/functions.php");
 
-$message		= '';
-$firstName	  = '';
-$lastName	   = '';
-$phoneNumber	= '';
-$dob			= '';
+/*Settings*/
+$storageFile="logindata.csv";
+$requiredFields=['firstName','lastName','password','phoneNumber','dob'];
 
-if(isset($_COOKIE['firstName']))
-{
-	$firstName = $_COOKIE['firstName'];
+/*Declaring variables and if present set their value in cookie*/
+foreach ($requiredFields as $required){
+	${$required} = empty($_COOKIE[$required]) ? "" : $_COOKIE[$required];
 }
 
-if(isset($_COOKIE['lastName']))
-{
-	$lastName = $_COOKIE['lastName'];
-}
+$message = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-if(isset($_COOKIE['phoneNumber']))
-{
-	$phoneNumber = $_COOKIE['phoneNumber'];
-}
-
-if(isset($_COOKIE['dob']))
-{
-	$dob = $_COOKIE['dob'];
-}
-
-if(count($_POST) > 0)
-{
-	$check = checkSignUp($_POST);
-
-	if($check === true)
-	{
-		$message = '<div class="alert alert-success text-center">
-						Thank you for signing up!
-					</div>';
-	//Add code here?
-
-	}
-	else
-	{
-		$message = '<div class="alert alert-danger text-center">
-						'.$check.'
-					</div>';
+	//Set variables to their posted content (if any) even if invalid
+	//Also set cookie
+	foreach ($requiredFields as $key => $required){
+		if(isset($_POST[$required]) && !empty(trim($_POST[$required]))){
+			${$required} = trim($_POST[$required]);
+			if ($key !== 2) { //i.e. for anything but the password
+				setcookie($required, $_POST[$required], time() + 60 * 60);
+			}
+		}
 	}
 
-	if(isset($_POST['firstName']))
-	{
-		setcookie('firstName', $_POST['firstName'], time() + 60 * 60);
-		$firstName = $_POST['firstName'];
-	}
+	$link = connectToDatabase();
+	//var_dump(checkForPresenceOfTables($link));
 
-	if(isset($_POST['lastName']))
-	{
-		setcookie('lastName', $_POST['lastName'], time() + 60 * 60);
-		$lastName = $_POST['lastName'];
-	}
+	$check = checkSignUp($_POST, $requiredFields, $link);//true on passing, else message
 
-	if(isset($_POST['phoneNumber']))
-	{
-		setcookie('phoneNumber', $_POST['phoneNumber'], time() + 60 * 60);
-		$phoneNumber = $_POST['phoneNumber'];
-	}
+	if ($check !== true) {
+		$message = wrapAlert($check);
+	} else { //data is present and matches patterns
 
-	if(isset($_POST['dob']))
-	{
-		setcookie('dob', $_POST['dob'], time() + 60 * 60);
-		$dob = $_POST['dob'];
+		//try to create user
+		if(createUser($_POST, $requiredFields, $link)){
+			$_SESSION['loggedIn']=true;
+			$_SESSION['firstName'] = $_POST['firstName'];
+			$_SESSION['lastName'] = $_POST['lastName'];
+			$message = $_SESSION['loginMessage'] = wrapAlert('Thank you for joining ' . $_POST['firstName'] . ' ' . $_POST['lastName'] . '!', 'success');
+			redirect('./');
+		} else {
+			$message = wrapAlert('Something went wrong... Sorry, eh!', 'danger');
+		}
 	}
 }
 ?>
@@ -128,7 +102,7 @@ if(count($_POST) > 0)
 										   value="<?php echo $phoneNumber;?>"
 										   name="phoneNumber"
 										   placeholder="Phone Number"
-										   type="text"
+										   type="tel"
 									/>
 								</div>
 								<div class="form-group">

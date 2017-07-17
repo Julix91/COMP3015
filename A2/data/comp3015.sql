@@ -26,8 +26,8 @@ CREATE TABLE `logins` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `phoneNumber` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `firstname` varchar(255) DEFAULT NULL,
-  `lastname` varchar(255) DEFAULT NULL,
+  `firstName` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
   `dob` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -51,8 +51,8 @@ DROP TABLE IF EXISTS `posts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `posts` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `firstname` varchar(255) DEFAULT NULL,
-  `lastname` varchar(255) DEFAULT NULL,
+  `firstName` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `comment` text,
   `priority` int(1) DEFAULT NULL,

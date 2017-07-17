@@ -1,22 +1,76 @@
 <?php
+session_start();
+require ("includes/functions.php");
+//If already logged in go straight to content
+if(!empty($_SESSION['loggedIn']) && $_SESSION['loggedIn']===true){
+	redirect('./');
+	die("What are you still doing here? Shouldn't you be enjoying the <a href=\"./\">posts</a>?");
+}
 
 $phoneNumber = '';
+$message = "";
+$requiredFields=['password','phoneNumber'];
 
-if(isset($_POST['remember']) && $_POST['remember'] == 1)
-{
+$remember = (!empty($_COOKIE['remember']) && $_COOKIE['remember'] == true) ? true : false;
+if($remember){
+	$phoneNumber = $_COOKIE['phoneNumber'];
+	$rememberCheckbox = true;
+	$message=wrapAlert("Welcome back!",'success');
+} else {
+	$rememberCheckbox = false;
+}
+
+if(isset($_POST['remember']) && $_POST['remember'] == 1) {
 	setcookie('phoneNumber', $_POST['phoneNumber'], time() + 60 * 60 * 24 * 20);	// 60 seconds, 60 minutes, 24 hours, 20 days
 	$phoneNumber = $_POST['phoneNumber'];
-}
-elseif(isset($_COOKIE['phoneNumber']))
-{
+} elseif(isset($_COOKIE['phoneNumber'])) {
 	$phoneNumber = $_COOKIE['phoneNumber'];
 }
 
-if(isset($_POST['phoneNumber']) && !isset($_POST['remember']))
-{
+if(isset($_POST['phoneNumber']) && !isset($_POST['remember'])) {
 	setcookie('phoneNumber', null, time() - 3600);
 	$phoneNumber = '';
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+	$rememberCheckbox = !empty($_POST['remember']) && $_POST['remember'] == 1 ? true : false;
+	$phoneNumber = !empty($_POST['phoneNumber']) ? $_POST['phoneNumber'] :  "wat? no # received!";
+
+	if(!checkPresenceOfInput($_POST, $requiredFields)) {
+		$message = wrapAlert('All inputs are required!', 'warning');
+	} elseif(!validateLogin($_POST)) {
+		$message = wrapAlert('Username or password was wrong. Try again or sign up below.', 'info');
+	}
+	else //present and user exists -> login
+	{
+
+	//code to remember the preference of remembering or forgetting
+		if($rememberCheckbox){
+			$remember=true;
+			setcookie("remember", "true", time() + 60*60*24*20, "/", "localhost", false, false);
+			setcookie("phoneNumber", "$phoneNumber", time() + 60*60*24*20, "/", "localhost", false, false);
+			$_SESSION['loginMessage']=wrapAlert("You just signed in. Phone number will be remembered for 20 days", 'info');
+		} else{
+			$remember = false;
+			setcookie("remember", "false", 1, "/", "localhost", false, false);
+			setcookie("phoneNumber", "$phoneNumber", 1, "/", "localhost", false, false);
+			$_SESSION['loginMessage']=wrapAlert("You just signed in. Phone number will not be remembered, and forgotten if it was stored before", 'info');
+		}
+
+		$_SESSION["loggedIn"]=true;
+		redirect('./');
+	}
+
+}
+//complain after breakin
+if (!empty($_SESSION['breakIn'])){
+	echo '<script>alert("What were you trying to do?")</script>';
+	$message = $_SESSION['breakIn'];
+	unset($_SESSION['breakIn']);
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -41,6 +95,7 @@ if(isset($_POST['phoneNumber']) && !isset($_POST['remember']))
 						<h3 class="panel-title">Please Sign In</h3>
 					</div>
 					<div class="panel-body">
+						<?php echo $message; ?>
 						<form name="login" role="form" action="login.php" method="post">
 							<fieldset>
 								<div class="form-group">

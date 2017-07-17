@@ -80,6 +80,7 @@ elseif(isset($_GET['search']))
                                     <th>Name</th>
                                     <th>Title</th>
                                     <th>Time</th>
+                                    <th></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -108,6 +109,10 @@ elseif(isset($_GET['search']))
                                                     <td>' . $filteredPost['author']     . '</td>
                                                     <td>' . $filteredPost['title']      . '</td>
                                                     <td>' . $filteredPost['searchResultsPostedTime'] . '</td>
+                                                    <td>
+                                                        <a href="#"> <i class="fa fa-edit"> </i> edit</a>
+                                                        <a href="#"> <i class="fa fa-remove"> </i> delete</a>
+                                                    </td>
                                                 </tr>
                                             ';
                                         }

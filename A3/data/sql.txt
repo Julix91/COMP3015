@@ -21,6 +21,12 @@ create table logins(
 	dob varchar(255)
 );
 
+alter table logins
+add admin tinyint(1);
+
+insert into logins(phoneNumber, password, firstName, lastName, dob, admin)
+values("1231231234", "admin123", "Admin", "Admin", null, 1);
+
 insert into posts(firstName, lastName, title, comment, priority, filename, time)
 values('Gary', 'Tong', 'Cras nisl ligula' ,'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac aliquet metus, id congue tortor. Pellentesque blandit ex in bibendum cursus. Phasellus dapibus augue nisl, feugiat scelerisque nisi finibus non. Curabitur hendrerit nisi nec urna sollicitudin, eu ultricies ipsum maximus. Ut ac nibh sit amet turpis malesuada dapibus eget a turpis. Sed gravida ultrices tortor at consequat. Aenean molestie tincidunt orci, dignissim luctus libero ullamcorper et. Pellentesque blandit odio vitae ultricies varius. Aenean laoreet quam lectus, eget convallis sapien dictum sed. Duis nec sodales leo, et sollicitudin arcu. Donec varius risus in ex efficitur, id interdum lorem bibendum. Pellentesque sed eros rhoncus, facilisis urna eget, lobortis nibh.', '3', 'nyc.jpg', '1481808630');
 

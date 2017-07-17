@@ -1,24 +1,23 @@
 <?php
 require ("includes/functions.php");
+session_start();
+//kill if unauthorized
+if(empty($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true){
+	redirect('login.php');
+	die("What are you still doing here!? I thought I redirected you <a href=\"./login.php\">here</a>...");
+}
 
-$message = '';
+$message = !empty($_SESSION['loginMessage']) ? $_SESSION['loginMessage'] : "";
 
-if(count($_POST) > 0)
-{
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$fieldInput = validateFields($_POST);
 	$fileInput  = isValidFile($_FILES['file']);
 
-	if($fieldInput != false && $fileInput != false)
-	{
+	if($fieldInput != false && $fileInput != false) {
 		$fieldInput['file'] = $_FILES['file']['tmp_name'];
 		insertPost($fieldInput);
-	}
-	else
-	{
-		$message = '<div class="alert alert-warning alert-dismissable text-center">
-						<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-							Invalid input!
-					</div>';
+	} else {
+		$message = wrapAlert('Invalid input!', 'warning');
 	}
 }
 
@@ -83,7 +82,7 @@ $posts = getPosts();
 					}
 
 					echo '
-						<div class="row">
+						<div class="row" id="post-'. $filteredPost['id'] .'">
 							<div class="col-md-6 col-md-offset-3">
 								<div class="panel ' . $panelTag . '">
 									<div class="panel-heading">
@@ -96,14 +95,14 @@ $posts = getPosts();
 									</div>
 									<div class="panel-body">
 										<p class="text-muted">
-											Posted on ' . $filteredPost['postedTime'] .' 
+											Posted on ' . $filteredPost['postedTime'] .'
 										</p>
 										<p>
 											' . $filteredPost['comment'] . '
 										</p>
 										<div class="img-box">
 											<img class="img-thumbnail img-responsive" src="uploads/'.$filteredPost['filename'].'"/>
-											<a href="download.php" class="btn btn-default pull-right"><i class="fa fa-download"> </i> Download</a>
+											<a href="download.php?filename='.$filteredPost['filename'].'" class="btn btn-default pull-right" ><i class="fa fa-download"> </i> Download</a>
 										</div>
 									</div>
 									<div class="panel-footer">
@@ -153,30 +152,38 @@ $posts = getPosts();
 		</div>
 		<div class="modal-body">
 				<div class="form-group">
-					<input class="form-control" placeholder="First Name" name="firstName">
+					<label>First Name
+						<input class="form-control" placeholder="First Name" name="firstName" value="<?php echo $_SESSION['firstName']?>">
+					</label>
 				</div>
 				<div class="form-group">
-					<input class="form-control" placeholder="Last Name" name="lastName">
+					<label>Last Name
+						<input class="form-control" placeholder="Last Name" name="lastName" value="<?php echo $_SESSION['lastName'] ?>">
+					</label>
 				</div>
 				<div class="form-group">
-					<label>Title</label>
-					<input class="form-control" placeholder="" name="title">
+					<label>Title
+						<input class="form-control" placeholder="" name="title">
+					</label>
 				</div>
 				<div class="form-group">
-					<label>Comment</label>
-					<textarea class="form-control" rows="3" name="comment"></textarea>
+					<label>Comment
+						<textarea class="form-control" rows="3" name="comment"></textarea>
+					</label>
 				</div>
 				<div class="form-group">
-					<label>Priority</label>
-					<select class="form-control" name="priority">
-						<option value="1">Important</option>
-						<option value="2">High</option>
-						<option value="3">Normal</option>
-					</select>
+					<label>Priority
+						<select class="form-control" name="priority">
+							<option value="1">Important</option>
+							<option value="2">High</option>
+							<option value="3">Normal</option>
+						</select>
+					</label>
 				</div>
 				<div class="form-group">
-					<label>Image</label>
-					<input type="file" name="file" />
+					<label>Image
+						<input type="file" name="file" />
+					</label>
 				</div>
 		</div>
 		<div class="modal-footer">

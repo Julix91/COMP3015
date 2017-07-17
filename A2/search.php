@@ -1,5 +1,12 @@
 <?php
 require ("includes/functions.php");
+session_start();
+//kill if unauthorized
+if(empty($_SESSION['loggedIn']) || $_SESSION['loggedIn'] !== true){
+	redirect('login.php');
+	die("No way you're seeing this without logging in <a href=\"./login.php\">here</a> first.");
+}
+
 
 $results = [];
 $term = '';
@@ -50,7 +57,7 @@ elseif(isset($_GET['search']))
 
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3">
-				<a href="/" class="btn btn-default"><i class="fa fa-arrow-circle-left"> </i> Back</a>
+				<a href="./" class="btn btn-default"><i class="fa fa-arrow-circle-left"> </i> Back</a>
 				<hr/>
 			</div>
 		</div>
@@ -104,9 +111,9 @@ elseif(isset($_GET['search']))
 											}
 
 											echo '
-												<tr class="'.$panelTag.'">
-													<td>' . $filteredPost['author']	 . '</td>
-													<td>' . $filteredPost['title']	  . '</td>
+												<tr class="'.$panelTag.'" id="'.$filteredPost['id'].'">
+													<td>' . $filteredPost['author'] . '</td>
+													<td>' . $filteredPost['title'] . '</td>
 													<td>' . $filteredPost['searchResultsPostedTime'] . '</td>
 												</tr>
 											';
@@ -136,7 +143,21 @@ elseif(isset($_GET['search']))
 	</div>
 </div>
 
-</body>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
+<script>
+	$('tr').on('click', function(){
+		let id = $(this).attr('id');
+		location.href = "./#post-" + id;
+	});
+</script>
+<style>
+	tr:hover td{
+		background-color: rgb(95, 73, 156)!important;
+		color: white;
+		text-shadow: 0px 0px 3px black;
+		cursor: pointer;
+	}
+</style>
+</body>
 </html>
